@@ -1,16 +1,12 @@
-import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:http/io_client.dart';
 import 'package:whatsapp_clone/screens/calls_tab.dart';
 import 'package:whatsapp_clone/screens/chats_tab.dart';
 import 'package:whatsapp_clone/screens/status_tab.dart';
 import 'package:whatsapp_clone/screens/auth_screen.dart';
 import 'package:whatsapp_clone/screens/select_contact_screen.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
-import 'package:dio/dio.dart';
 import 'package:whatsapp_clone/custom_http_client.dart';
-import 'package:http/http.dart' as http;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -31,55 +27,17 @@ void main() async {
   runApp(
     GraphQLProvider(
       client: ValueNotifier(client),
-      child: MyApp(),
+      child: const MyApp(),
     ),
   );
 }
 
-class _DioHttpClient extends http.BaseClient {
-  final Dio _dio;
-
-  _DioHttpClient(this._dio);
-
-  @override
-  Future<http.StreamedResponse> send(http.BaseRequest request) async {
-    final options = Options(
-      method: request.method,
-      headers: request.headers,
-    );
-
-    try {
-      final dioResponse = await _dio.requestUri(
-        request.url,
-        options: options,
-        data: request is http.Request ? request.body : null,
-      );
-
-      return http.StreamedResponse(
-        Stream.fromIterable([dioResponse.data?.toString().codeUnits ?? []]),
-        dioResponse.statusCode ?? 200,
-        headers: _normalizeHeaders(dioResponse.headers.map),
-      );
-    } on DioException catch (e) {
-      return http.StreamedResponse(
-        Stream.fromIterable([e.response?.data?.toString().codeUnits ?? []]),
-        e.response?.statusCode ?? 500,
-        headers: _normalizeHeaders(e.response?.headers.map ?? {}),
-      );
-    }
-  }
-
-  Map<String, String> _normalizeHeaders(Map<String, dynamic> headers) {
-    return headers.map((key, value) {
-      if (value is List) {
-        return MapEntry(key, value.join(', '));
-      }
-      return MapEntry(key, value.toString());
-    });
-  }
-}
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -92,26 +50,30 @@ class MyApp extends StatelessWidget {
           onSecondary: Colors.white,
         ),
         scaffoldBackgroundColor: Colors.white,
-        appBarTheme: AppBarTheme(
+        appBarTheme: const AppBarTheme(
           backgroundColor: Color(0xFF075E54),
           foregroundColor: Colors.white,
         ),
-        tabBarTheme: TabBarTheme(
+        tabBarTheme: const TabBarTheme(
           labelColor: Colors.white,
           unselectedLabelColor: Colors.white70,
         ),
-        floatingActionButtonTheme: FloatingActionButtonThemeData(
+        floatingActionButtonTheme: const FloatingActionButtonThemeData(
           backgroundColor: Color(0xFF25D366),
           foregroundColor: Colors.white,
         ),
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: AuthScreen(),
+      home: const AuthScreen(),
     );
   }
 }
 
 class HomeScreen extends StatefulWidget {
+  const HomeScreen({super.key});
+
+ 
+
   @override
   _HomeScreenState createState() => _HomeScreenState();
 }
@@ -130,15 +92,15 @@ class _HomeScreenState extends State<HomeScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('WhatsApp'),
+        title: const Text('WhatsApp'),
         actions: [
-          IconButton(icon: Icon(Icons.search), onPressed: () {}),
-          IconButton(icon: Icon(Icons.more_vert), onPressed: () {}),
+          IconButton(icon: const Icon(Icons.search), onPressed: () {}),
+          IconButton(icon: const Icon(Icons.more_vert), onPressed: () {}),
         ],
         bottom: TabBar(
           controller: _tabController,
           indicatorColor: Colors.white,
-          tabs: [
+          tabs: const [
             Tab(text: 'CHATS'),
             Tab(text: 'STATUS'),
             Tab(text: 'CALLS'),
@@ -154,7 +116,7 @@ class _HomeScreenState extends State<HomeScreen>
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.message),
+        child: const Icon(Icons.message),
         onPressed: () {
           Navigator.push(
             context,
@@ -170,7 +132,7 @@ class _HomeScreenState extends State<HomeScreen>
               decoration: BoxDecoration(
                 color: Theme.of(context).colorScheme.primary,
               ),
-              child: Text(
+              child:const  Text(
                 'WhatsApp Menu',
                 style: TextStyle(
                   color: Colors.white,
@@ -179,12 +141,11 @@ class _HomeScreenState extends State<HomeScreen>
               ),
             ),
             ListTile(
-              leading: Icon(Icons.exit_to_app),
-              title: Text('Logout'),
+              leading: const Icon(Icons.exit_to_app),
+              title: const Text('Logout'),
               onTap: () {
-                // TODO: Implement logout functionality
                 Navigator.of(context).pushReplacement(
-                  MaterialPageRoute(builder: (context) => AuthScreen()),
+                  MaterialPageRoute(builder: (context) => const AuthScreen()),
                 );
               },
             ),

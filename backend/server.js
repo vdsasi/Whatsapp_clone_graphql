@@ -9,7 +9,8 @@ const cors = require("cors");
 const session = require("express-session");
 const MongoStore = require("connect-mongo");
 const crypto = require("crypto");
-const { ObjectId } = require("mongodb");  
+const { ObjectId } = require("mongodb");
+
 const app = express();
 app.use(express.json());
 app.use(cookieParser());
@@ -99,12 +100,6 @@ const User = mongoose.model("User", {
       profilePicture: String,
     },
   ],
-  statusUpdates: [
-    {
-      timestamp: String,
-      imageUrl: String,
-    },
-  ],
   chats: [
     {
       chatId: mongoose.Schema.Types.ObjectId,
@@ -123,7 +118,14 @@ const User = mongoose.model("User", {
   ],
 });
 
-// GraphQL Schema
+// New StatusUpdate model
+const StatusUpdate = mongoose.model("StatusUpdate", {
+  name: String,
+  timestamp: String,
+  imageUrl: String,
+});
+
+// Updated GraphQL Schema
 const schema = buildSchema(`
   type Contact {
     name: String
@@ -140,6 +142,7 @@ const schema = buildSchema(`
   }
 
   type StatusUpdate {
+    name: String
     timestamp: String
     imageUrl: String
   }
@@ -164,7 +167,6 @@ const schema = buildSchema(`
     email: String
     contacts: [Contact]
     callHistory: [CallHistory]
-    statusUpdates: [StatusUpdate]
     chats: [Chat]
   }
 
@@ -172,7 +174,7 @@ const schema = buildSchema(`
     getUser(name: String!): User
     getContacts(name: String!): [Contact]
     getCalls(name: String!): [CallHistory]
-    getStatusUpdates(name: String!): [StatusUpdate]
+    getStatusUpdates(names: [String!]!): [StatusUpdate]
     getChats(name: String!): [Chat]
     getMessages(name: String!, chatId: ID!): [ChatMessage]
   }
@@ -187,6 +189,7 @@ const schema = buildSchema(`
   }
 `);
 
+
 // Resolvers
 const root = {
   getUser: async ({ name }) => {
@@ -196,40 +199,37 @@ const root = {
     const user = await User.findOne({ name });
     return user.contacts;
   },
+  getStatusUpdates: async ({ names }) => {
+    console.log("hitting the status updates");
+    const response = await StatusUpdate.find({ name: { $in: names } }).sort({
+      timestamp: -1,
+    });
+
+    console.log(response);
+
+    return response;
+  },
   getCalls: async ({ name }) => {
     const user = await User.findOne({ name });
     return user.callHistory;
   },
-  getStatusUpdates: async ({ name }) => {
-    const user = await User.findOne({ name });
-    
-    return user.statusUpdates;
+  getStatusUpdates: async ({ names }) => {
+    return await StatusUpdate.find({ name: { $in: names } });
   },
   getChats: async ({ name }) => {
-    console.log("hitting this getChats thing");
     const user = await User.findOne({ name });
-
     return user.chats;
   },
   getMessages: async ({ name, chatId }) => {
-    console.log("name:", name);
-    console.log("chatId:", chatId);
-
     const user = await User.findOne(
       { name },
       { chats: { $elemMatch: { chatId: new ObjectId(chatId) } } }
     );
-
-    console.log("user chats:", user?.chats);
-
     if (!user || user.chats.length === 0) {
-      console.log("Chat not found");
       return [];
     }
-
     return user.chats[0].messages || [];
   },
-
   addUser: async ({ name, email, password }) => {
     const hashedPassword = await bcrypt.hash(password, 10);
     const user = new User({ name, email, password: hashedPassword });
@@ -260,15 +260,18 @@ const root = {
     return newCall;
   },
   addStatusUpdate: async ({ name, imageUrl }) => {
-    const user = await User.findOne({ name });
-    const newStatus = { imageUrl, timestamp: new Date().toISOString() };
-    user.statusUpdates.push(newStatus);
-    await user.save();
-    return newStatus;
+    const statusUpdate = new StatusUpdate({
+      name,
+      imageUrl,
+      timestamp: new Date().toISOString(),
+    });
+    await statusUpdate.save();
+    return statusUpdate;
   },
   addChat: async ({ name, chatName, profilePicture }) => {
     const user = await User.findOne({ name });
     const newChat = {
+      chatId: new ObjectId(),
       name: chatName,
       profilePicture,
       messages: [],
@@ -316,8 +319,6 @@ function authenticateTokenAndSession(req, res, next) {
     next();
   });
 }
-
-
 
 // GraphQL endpoint with authentication
 app.use(

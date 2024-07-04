@@ -9,7 +9,7 @@ class CustomHttpClient {
 
   late Dio _dio;
   late Link _link;
-  final FlutterSecureStorage _secureStorage = FlutterSecureStorage();
+  final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
 
   CustomHttpClient._internal() {
     _dio = Dio(BaseOptions(

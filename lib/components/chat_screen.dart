@@ -31,16 +31,16 @@ class _ChatScreenState extends State<ChatScreen> {
       appBar: AppBar(
         title: Text(widget.chat.name),
         actions: [
-          IconButton(icon: Icon(Icons.videocam), onPressed: () {}),
-          IconButton(icon: Icon(Icons.call), onPressed: () {}),
-          IconButton(icon: Icon(Icons.more_vert), onPressed: () {}),
+          IconButton(icon: const Icon(Icons.videocam), onPressed: () {}),
+          IconButton(icon: const Icon(Icons.call), onPressed: () {}),
+          IconButton(icon: const Icon(Icons.more_vert), onPressed: () {}),
         ],
       ),
       body: FutureBuilder<String?>(
         future: SharedPrefsName.getUserName(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
+            return const Center(child: CircularProgressIndicator());
           }
 
           if (snapshot.hasError) {
@@ -60,7 +60,7 @@ class _ChatScreenState extends State<ChatScreen> {
             builder: (QueryResult result,
                 {VoidCallback? refetch, FetchMore? fetchMore}) {
               if (result.isLoading) {
-                return Center(child: CircularProgressIndicator());
+                return const Center(child: CircularProgressIndicator());
               }
 
               if (result.hasException) {
@@ -69,7 +69,7 @@ class _ChatScreenState extends State<ChatScreen> {
               }
 
               if (result.data == null || result.data!['getMessages'] == null) {
-                return Center(child: Text("No messages found"));
+                return const Center(child: Text("No messages found"));
               }
 
               List<ChatMessage> messages = (result.data!['getMessages'] as List)
@@ -98,29 +98,29 @@ class _ChatScreenState extends State<ChatScreen> {
 
   Widget _buildMessageComposer(List<ChatMessage> messages) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 8.0),
+      padding: const EdgeInsets.symmetric(horizontal: 8.0),
       height: 70.0,
       color: Colors.white,
       child: Row(
         children: <Widget>[
           IconButton(
-            icon: Icon(Icons.emoji_emotions),
+            icon: const Icon(Icons.emoji_emotions),
             onPressed: () {},
           ),
           Expanded(
             child: TextField(
               controller: _messageController,
-              decoration: InputDecoration.collapsed(
+              decoration: const InputDecoration.collapsed(
                 hintText: 'Type a message',
               ),
             ),
           ),
           IconButton(
-            icon: Icon(Icons.attach_file),
+            icon: const Icon(Icons.attach_file),
             onPressed: () {},
           ),
           IconButton(
-            icon: Icon(Icons.send),
+            icon: const Icon(Icons.send),
             onPressed: () {
               _handleSubmitted(messages);
             },
@@ -147,15 +147,15 @@ class _ChatScreenState extends State<ChatScreen> {
 class MessageBubble extends StatelessWidget {
   final ChatMessage message;
 
-  const MessageBubble({Key? key, required this.message}) : super(key: key);
+  const MessageBubble({super.key, required this.message});
 
   @override
   Widget build(BuildContext context) {
     return Align(
       alignment: message.isMe ? Alignment.centerRight : Alignment.centerLeft,
       child: Container(
-        margin: EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-        padding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+        margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
         decoration: BoxDecoration(
           color: message.isMe ? Colors.lightGreen[100] : Colors.white,
           borderRadius: BorderRadius.circular(12),
@@ -164,10 +164,10 @@ class MessageBubble extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             Text(message.text),
-            SizedBox(height: 4),
+            const SizedBox(height: 4),
             Text(
               message.timestamp,
-              style: TextStyle(fontSize: 10, color: Colors.grey),
+              style: const TextStyle(fontSize: 10, color: Colors.grey),
             ),
           ],
         ),

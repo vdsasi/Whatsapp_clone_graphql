@@ -7,14 +7,14 @@ class CallsTab extends StatelessWidget {
       timestamp: "February 11, 23:17",
       isVideoCall: false,
       isIncoming: true,
-      profilePicture: "assets/jane_profile.jpg",
+      profilePicture: "http://example.com/100",
     ),
     CallHistory(
       name: "Gloria",
       timestamp: "February 11, 16:26",
       isVideoCall: false,
       isIncoming: false,
-      profilePicture: "assets/gloria_profile.jpg",
+      profilePicture: "http://example.com/100",
     ),
   ];
 
@@ -33,7 +33,7 @@ class CallsTab extends StatelessWidget {
 class CallListItem extends StatelessWidget {
   final CallHistory call;
 
-  const CallListItem({Key? key, required this.call}) : super(key: key);
+  const CallListItem({super.key, required this.call});
 
   @override
   Widget build(BuildContext context) {
@@ -49,7 +49,7 @@ class CallListItem extends StatelessWidget {
             size: 16,
             color: call.isIncoming ? Colors.red : Colors.green,
           ),
-          SizedBox(width: 4),
+          const SizedBox(width: 4),
           Text(call.timestamp),
         ],
       ),

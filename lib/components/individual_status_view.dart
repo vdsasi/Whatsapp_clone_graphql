@@ -3,15 +3,9 @@ import 'dart:async';
 import 'package:whatsapp_clone/models/status_update.dart';
 
 class StatusViewScreen extends StatefulWidget {
-  final StatusUpdate status;
-  final List<StatusUpdate> allStatuses;
-  final int initialIndex;
+  final List<StatusUpdate> statuses;
 
-  StatusViewScreen({
-    required this.status,
-    required this.allStatuses,
-    required this.initialIndex,
-  });
+  const StatusViewScreen({super.key, required this.statuses});
 
   @override
   _StatusViewScreenState createState() => _StatusViewScreenState();
@@ -22,12 +16,11 @@ class _StatusViewScreenState extends State<StatusViewScreen>
   late AnimationController _animationController;
   late int _currentIndex;
   final int _duration = 5; // Duration of each status in seconds
-  TextEditingController _messageController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    _currentIndex = widget.initialIndex;
+    _currentIndex = 0;
     _animationController = AnimationController(
       vsync: this,
       duration: Duration(seconds: _duration),
@@ -54,7 +47,7 @@ class _StatusViewScreenState extends State<StatusViewScreen>
 
   void _moveToNextStatus() {
     setState(() {
-      if (_currentIndex < widget.allStatuses.length - 1) {
+      if (_currentIndex < widget.statuses.length - 1) {
         _currentIndex++;
         _animationController.forward(from: 0.0);
       } else {
@@ -76,7 +69,6 @@ class _StatusViewScreenState extends State<StatusViewScreen>
   @override
   void dispose() {
     _animationController.dispose();
-    _messageController.dispose();
     super.dispose();
   }
 
@@ -101,16 +93,17 @@ class _StatusViewScreenState extends State<StatusViewScreen>
             fit: StackFit.expand,
             children: [
               Image.network(
-                widget.allStatuses[_currentIndex].imageUrl,
+                widget.statuses[_currentIndex].imageUrl,
                 fit: BoxFit.cover,
                 loadingBuilder: (context, child, loadingProgress) {
                   if (loadingProgress == null) return child;
-                  return Center(child: CircularProgressIndicator());
+                  return const Center(child: CircularProgressIndicator());
                 },
                 errorBuilder: (context, error, stackTrace) {
-                  return Center(
-                      child: Text('Error loading image',
-                          style: TextStyle(color: Colors.white)));
+                  return const Center(
+                    child: Text('Error loading image',
+                        style: TextStyle(color: Colors.white)),
+                  );
                 },
               ),
               Column(
@@ -120,7 +113,7 @@ class _StatusViewScreenState extends State<StatusViewScreen>
                         const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
                     child: Row(
                       children: List.generate(
-                        widget.allStatuses.length,
+                        widget.statuses.length,
                         (index) => Expanded(
                           child: Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 2),
@@ -132,7 +125,7 @@ class _StatusViewScreenState extends State<StatusViewScreen>
                                       : 0),
                               backgroundColor: Colors.grey[700],
                               valueColor:
-                                  AlwaysStoppedAnimation<Color>(Colors.white),
+                                 const AlwaysStoppedAnimation<Color>(Colors.white),
                             ),
                           ),
                         ),
@@ -146,66 +139,28 @@ class _StatusViewScreenState extends State<StatusViewScreen>
                       children: [
                         CircleAvatar(
                           backgroundImage: NetworkImage(
-                              widget.allStatuses[_currentIndex].profilePicture),
+                              widget.statuses[_currentIndex].profilePicture),
                           radius: 20,
                         ),
-                        SizedBox(width: 10),
+                        const SizedBox(width: 10),
                         Expanded(
                           child: Text(
-                            widget.allStatuses[_currentIndex].name,
-                            style: TextStyle(color: Colors.white, fontSize: 18),
+                            widget.statuses[_currentIndex].name,
+                            style: const TextStyle(color: Colors.white, fontSize: 18),
                           ),
                         ),
                         IconButton(
-                          icon: Icon(Icons.close, color: Colors.white),
+                          icon: const Icon(Icons.close, color: Colors.white),
                           onPressed: () => Navigator.of(context).pop(),
                         ),
                       ],
                     ),
                   ),
-                  Spacer(),
-                  _buildMessageInput(),
                 ],
               ),
             ],
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildMessageInput() {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      color: Colors.black.withOpacity(0.5),
-      child: Row(
-        children: [
-          IconButton(
-            icon: Icon(Icons.emoji_emotions, color: Colors.white),
-            onPressed: () {
-              // TODO: Implement emoji picker
-            },
-          ),
-          Expanded(
-            child: TextField(
-              controller: _messageController,
-              style: TextStyle(color: Colors.white),
-              decoration: InputDecoration(
-                hintText: 'Reply to status...',
-                hintStyle: TextStyle(color: Colors.white70),
-                border: InputBorder.none,
-              ),
-            ),
-          ),
-          IconButton(
-            icon: Icon(Icons.send, color: Colors.white),
-            onPressed: () {
-              // TODO: Implement send message functionality
-              print('Sending message: ${_messageController.text}');
-              _messageController.clear();
-            },
-          ),
-        ],
       ),
     );
   }

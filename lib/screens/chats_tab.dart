@@ -17,13 +17,15 @@ class ChatsTab extends StatelessWidget {
     }
   """;
 
+  const ChatsTab({super.key});
+
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<String?>(
       future: SharedPrefsName.getUserName(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(child: CircularProgressIndicator());
+          return const Center(child: CircularProgressIndicator());
         }
 
         if (snapshot.hasError) {
@@ -78,7 +80,7 @@ class ChatsTab extends StatelessWidget {
 class ChatListItem extends StatelessWidget {
   final ChatPreview chat;
 
-  const ChatListItem({Key? key, required this.chat}) : super(key: key);
+  const ChatListItem({super.key, required this.chat});
 
   @override
   Widget build(BuildContext context) {
@@ -88,7 +90,7 @@ class ChatListItem extends StatelessWidget {
       ),
       title: Text(chat.name),
       subtitle: Text(chat.lastMessage),
-      trailing: Text(chat.timestamp),
+      // trailing: Text(chat.timestamp),
       onTap: () {
         Navigator.push(
           context,
